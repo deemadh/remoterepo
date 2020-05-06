@@ -14,4 +14,6 @@ public class DateTimeFormatConfiguration extends WebMvcConfigurerAdapter {
         registrar.setUseIsoFormat(true);
         registrar.registerFormatters(registry);
     }
+    
 }
+	

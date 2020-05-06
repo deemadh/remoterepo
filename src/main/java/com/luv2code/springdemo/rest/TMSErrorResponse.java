@@ -1,16 +1,16 @@
 package com.luv2code.springdemo.rest;
 
-public class StudentErrorResponse {
+public class TMSErrorResponse {
 	private int status;
 	private String message ;
 	private long timeStamp ;
 	
-	public StudentErrorResponse() {
+	public TMSErrorResponse() {
 		
 	}
 	
 	
-	public StudentErrorResponse(int status, String message, long timeStamp) {
+	public TMSErrorResponse(int status, String message, long timeStamp) {
 		super();
 		this.status = status;
 		this.message = message;

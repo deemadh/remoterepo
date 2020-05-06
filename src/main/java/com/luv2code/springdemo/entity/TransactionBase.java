@@ -67,7 +67,7 @@ public abstract class TransactionBase implements Transaction {
 		this.type = type;
 	}
 
-	public double getAmount() {
+	public Double getAmount() {
 		return amount;
 	}
 

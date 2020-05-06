@@ -12,7 +12,7 @@ public interface Transaction {
 
 	public void setType(int type);
 
-	public double getAmount();
+	public Double getAmount();
 
 	public void setAmount(double amount);
 

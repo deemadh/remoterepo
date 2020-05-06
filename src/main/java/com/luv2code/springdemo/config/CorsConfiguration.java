@@ -17,5 +17,6 @@ public class CorsConfiguration
                 registry.addMapping("/**").allowedOrigins("http://localhost:8080");
             }
         };
-    }*/
+    }
+    */
 }

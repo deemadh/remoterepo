@@ -145,7 +145,7 @@ public class TMSRestController {
 
 	public void addExpense(Expense expense) {
 		TMSServiceDatabaseImpl tmsService;
-
+      
 		try {
 			tmsService = new TMSServiceDatabaseImpl();
 			tmsService.addExpense(expense);
@@ -160,8 +160,9 @@ public class TMSRestController {
 
 	public void addIncome(Income income) {
 		TMSServiceDatabaseImpl tmsService;
-
+		
 		try {
+			    
 			tmsService = new TMSServiceDatabaseImpl();
 			tmsService.addIncome(income);
 		} catch (ClassNotFoundException | SQLException | IOException e) {

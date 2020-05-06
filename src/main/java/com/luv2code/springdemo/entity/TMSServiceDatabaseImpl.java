@@ -1,8 +1,5 @@
 package com.luv2code.springdemo.entity;
 
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Date;
@@ -25,21 +22,15 @@ import com.luv2code.springdemo.entity.tms.error.NullAmountException;
 
 public class TMSServiceDatabaseImpl implements TMSService {
 	private Connection connection;
-	private String databaseName;
-	private String userName;
-	private String password;
+	
 	private PreparedStatement pstmt;
 	private ResultSet result;
 
 	public TMSServiceDatabaseImpl() throws ClassNotFoundException, SQLException, IOException {
-
-//		DataInputStream reader = new DataInputStream(new FileInputStream("configFile.txt"));
-//		this.databaseName = reader.readLine();
-//		this.userName = reader.readLine();
-//		this.password = reader.readLine();
+      
 
 		Class.forName("com.mysql.jdbc.Driver");
-		connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + "tms", "root", "deema");
+		connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/" +"tms", "root", "deema");
 	}
 
 	@Override
@@ -107,8 +98,7 @@ public class TMSServiceDatabaseImpl implements TMSService {
 		this.pstmt = this.connection.prepareStatement(sqlStatment);
 		this.result = this.pstmt.executeQuery();
 		while (this.result.next()) {
-			Category category = getCategory(this.result.getInt("category"));
-			// System.out.println(this.result.getInt("category"));
+			//Category category = getCategory(this.result.getInt("category"));
 			TransactionArgument transactionArgument;
 
 			if (this.result.getInt("type") == 15) {
@@ -174,7 +164,35 @@ public class TMSServiceDatabaseImpl implements TMSService {
 
 	@Override
 	public void addIncome(Income income) throws SQLException {
+		
 
+		if( income.getIcategory() == null )
+			throw new MissingArgumentException("Error:Argument 'Category' cannot be Null");
+		String chekCategory = "select id from dictionaryentries where dkey=1";
+		pstmt = connection.prepareStatement(chekCategory);
+		ResultSet r = pstmt.executeQuery(chekCategory);
+		int cid = 0;
+		boolean flagcategory = false, flagdate = true;
+		while (r.next()) {
+			cid = r.getInt(1);
+			if (income.getIcategory() == cid)
+				flagcategory = true;
+		
+		}
+		
+		if (income.getDate() == null ) {
+			throw new MissingArgumentException("Error:Argument 'Date' cannot be Null");
+		}
+		
+		if (income.getDate().compareTo(LocalDate.now()) > 0) {
+			throw new InvalidDateException("Erorr:Term date cannot be in the future!!!!");
+		}
+		if( income.getAmount() == null )
+			throw new MissingArgumentException("Error:Argument 'Amount' cannot be Null");
+		
+		
+		
+		if (flagcategory == true) {
 		String addTransactionQuery = "insert into transaction (type, amount, category, comment, date)"
 				+ "values (?, ?, ?, ?, ?)";
 
@@ -214,10 +232,18 @@ public class TMSServiceDatabaseImpl implements TMSService {
 
 			pstmt.executeUpdate();
 		}
+		}
+		else {
+			throw new InvalidCategoryException("Change category to Income category");
+		}
+		
 	}
 
 	@Override
 	public void addExpense(Expense expense) throws SQLException, InvalidCategoryException, InvalidDataException {
+		
+		if( expense.getIcategory() == null )
+			throw new MissingArgumentException("Error:Argument 'Category' cannot be Null");
 		String chekCategory = "select id from dictionaryentries where dkey=2";
 		pstmt = connection.prepareStatement(chekCategory);
 		ResultSet r = pstmt.executeQuery(chekCategory);
@@ -227,13 +253,21 @@ public class TMSServiceDatabaseImpl implements TMSService {
 			cid = r.getInt(1);
 			if (expense.getIcategory() == cid)
 				flagcategory = true;
-			// System.out.println(cid);
 		}
+
+
+		if (expense.getDate() == null ) {
+			throw new MissingArgumentException("Error:Argument 'Date' cannot be Null");
+		}
+		
 		if (expense.getDate().compareTo(LocalDate.now()) > 0) {
-			throw new InvalidDateException("Date You inserted in future");
+			throw new InvalidDateException("Erorr:Term date cannot be in the future!!!!");
 		}
-		if (expense.getAmount() == 0) {
-			throw new NullAmountException("You try to insert 0 amount value!");
+		if( expense.getAmount() == null)
+			throw new MissingArgumentException("Error:Argument 'Amount' cannot be Null");
+		
+		if (expense.getAmount() == 0 ) {
+			throw new NullAmountException("You try to insert Invalid amount value");
 		}
 		if (expense.getPymentMethod() != 13 && expense.getPymentMethod() != 14) {
 			throw new InvalidPaymentmethodException("wrong paymant method!\n13:cash,14:visa");

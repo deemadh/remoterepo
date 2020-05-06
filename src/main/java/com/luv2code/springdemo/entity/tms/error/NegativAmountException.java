@@ -7,7 +7,7 @@ public class NegativAmountException extends TMSExeption {
 	private static final long serialVersionUID = 1L;
 
 	public NegativAmountException (String message) {
-		super(message, "E006");
+		super(message, "E005");
 		// TODO Auto-generated constructor stub
 	}
 }

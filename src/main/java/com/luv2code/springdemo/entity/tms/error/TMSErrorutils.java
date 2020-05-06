@@ -11,12 +11,16 @@ public class TMSErrorutils {
 			return "DuplicateCategoryException";
 		case "E003":
 			return "InvalidDateException";
-		case "E005":
+		case "E004":
 			return "MissingArgumentException";
-		case "E006":
+		case "E005":
 			return "NegativeAmountException";
+		case "E006":
+			return "NullAmountException";
+		case "E007":
+			return "InvalidPaymentmethodException";
 		default :
-			return "Unknown Exeption!!!";
+			return "Unknown Exception!!!";
 		
 		}
 		

@@ -8,7 +8,7 @@ public class MissingArgumentException extends TMSExeption {
 	private static final long serialVersionUID = 84;
 
 	public MissingArgumentException(String message) {
-		super(message, "E005");
+		super(message, "E004");
 		// TODO Auto-generated constructor stub
 	}
 
