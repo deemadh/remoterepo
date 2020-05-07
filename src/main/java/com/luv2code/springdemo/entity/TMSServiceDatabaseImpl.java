@@ -58,26 +58,45 @@ public class TMSServiceDatabaseImpl implements TMSService {
 		if (filters.getType() == null) {
 			// get all
 
-			sqlStatment = "SELECT t.id,t.type,t.amount,t.date,t.category,COALESCE(d.id,0) as \"paymentMethod\",COALESCE(t.comment,'no comment') as \"comment\",t.id in(select id from FrequentTransaction) as \"frequent\" \n"
-					+ "FROM Transaction as t\n" + "LEFT JOIN Expense as e\n" + "ON t.id=e.id\n"
-					+ "LEFT JOIN Income as i\n" + "ON t.id=i.id\n" + "LEFT JOIN DictionaryEntries as d\n"
-					+ "ON e.paymentMethod=d.id\n";
+			sqlStatment = "SELECT * from transaction as t";
 
 		} else if (filters.getType() == 15) {
 			// get Income
 
-			sqlStatment = "SELECT t.id,t.type,t.amount,t.date,t.category,COALESCE(t.comment,'no comment') as \"comment\",t.id in(select id from FrequentTransaction) as \"frequent\"\n"
-					+ "FROM Transaction as t\n" + "INNER JOIN Income as i\n" + "ON t.id=i.id\n";
+			sqlStatment = "SELECT * from transaction as t where type =15";
 
 		} else if (filters.getType() == 16) {
 			// get Expense
 
-			sqlStatment = "SELECT t.id,t.type,t.amount,t.date,t.category,d.id as \"paymentMethod\",COALESCE(t.comment,'no comment') \"comment\",t.id in(select id from FrequentTransaction) as \"frequent\"\n"
-					+ "FROM Transaction as t\n" + "INNER JOIN Expense as e\n" + "ON t.id=e.id\n"
-					+ "INNER JOIN DictionaryEntries as d\n" + "ON e.paymentMethod=d.id\n";
+			sqlStatment = "SELECT * from transaction as t where type =16";
 		}
+		if (filters.getcategoryId() != null) {
+		if (filters.getType() != null)
+			sqlStatment += " and t.category=" + filters.getcategoryId();
+		else
+			sqlStatment += " where t.category=" + filters.getcategoryId();
+		}
+		
+		if (filters.getFrom() != null && filters.getTo() != null
+				&& (filters.getType() != null || filters.getcategoryId() != null)) {
+			{
+				sqlStatment += " and t.date>=DATE(\"" + filters.getFrom() + "\") and t.date<=DATE(\"" + filters.getTo()
+						+ "\")";
+			}
+		} else if (filters.getFrom() != null && (filters.getType() != null || filters.getcategoryId() != null)) {
+			sqlStatment += " and t.date>=DATE(\"" + filters.getFrom() + "\")";
+		} else if (filters.getTo() != null && (filters.getType() != null || filters.getcategoryId() != null)) {
+			sqlStatment += " and t.date<=DATE(\"" + filters.getTo() + "\")";
+		} else if (filters.getFrom() != null && (filters.getType() == null || filters.getcategoryId() == null))
+			sqlStatment += " where t.date>=DATE(\"" + filters.getFrom() + "\")";
+		else if (filters.getTo() != null && (filters.getType() == null || filters.getcategoryId() == null))
+			sqlStatment += " where t.date<=DATE(\"" + filters.getTo() + "\")";
+	
 
-		if (filters.getFrom() != null && filters.getTo() != null) {
+		
+	
+///////////////////
+		/*if (filters.getFrom() != null && filters.getTo() != null && filters.getType() == null ) {
 			sqlStatment += " WHERE t.date>=DATE(\"" + filters.getFrom() + "\") and t.date<=DATE(\"" + filters.getTo()
 					+ "\")";
 		} else if (filters.getFrom() != null) {
@@ -92,13 +111,14 @@ public class TMSServiceDatabaseImpl implements TMSService {
 			} else {
 				sqlStatment += " WHERE t.category=" + filters.getcategoryId();
 			}
-		}
+		}*/
 		sqlStatment += " ORDER BY t.date";
 		List<TransactionBase> transactions = new ArrayList<TransactionBase>();
 		this.pstmt = this.connection.prepareStatement(sqlStatment);
 		this.result = this.pstmt.executeQuery();
 		while (this.result.next()) {
-			//Category category = getCategory(this.result.getInt("category"));
+			Category category = getCategory(this.result.getInt("category"));
+			 System.out.println(category.getValue());
 			TransactionArgument transactionArgument;
 
 			if (this.result.getInt("type") == 15) {
@@ -112,7 +132,7 @@ public class TMSServiceDatabaseImpl implements TMSService {
 				transactionArgument = new TransactionArgument(this.result.getInt("id"), this.result.getInt("type"),
 						this.result.getDouble("amount"), this.result.getInt("category"),
 						this.result.getString("comment"), this.result.getDate("date").toLocalDate(),
-						this.result.getInt("paymentMethod"), null);
+						0, null);
 				TransactionBase expense = Factory.createTransaction("Expense", transactionArgument);
 				transactions.add(expense);
 			}
